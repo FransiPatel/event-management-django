@@ -37,3 +37,7 @@ class UpdateEventValidator(serializers.Serializer):
 
 class DeleteEventValidator(serializers.Serializer):
     id = serializers.CharField(required=True)
+
+
+class RegisterEventValidator(serializers.Serializer):
+    eventId = serializers.CharField(required=True)

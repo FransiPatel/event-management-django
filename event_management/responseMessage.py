@@ -24,6 +24,11 @@ EVENT_FETCH_SUCCESS = "Events fetched successfully"
 EVENT_UPDATED = "Event updated"
 EVENT_DELETED = "Event deleted"
 WENTS_WRONG = "Something went wrong"
+EVENT_REGISTRATION_SUCCESS = "Registered for event successfully"
+ALREADY_REGISTERED = "You have already registered for this event"
+MEDIA_UPLOAD_SUCCESS = "Media uploaded successfully"
+FILE_REQUIRED = "File is required"
+ADMIN_ONLY = "This action is only allowed for admin users"
 
 
 """
