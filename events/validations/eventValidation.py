@@ -28,6 +28,9 @@ class UpdateEventValidator(serializers.Serializer):
     venue = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     capacity = serializers.IntegerField(required=False)
     imageId = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    deletedMediaId = serializers.CharField(
+        required=False, allow_null=True, allow_blank=False
+    )
 
     def validate_capacity(self, value):
         if value is not None and value <= 0:

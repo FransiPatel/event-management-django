@@ -29,6 +29,7 @@ ALREADY_REGISTERED = "You have already registered for this event"
 MEDIA_UPLOAD_SUCCESS = "Media uploaded successfully"
 FILE_REQUIRED = "File is required"
 ADMIN_ONLY = "This action is only allowed for admin users"
+EVENT_CAPACITY_REACHED = "Event capacity reached"
 
 
 """

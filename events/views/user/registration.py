@@ -2,10 +2,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from ..serializers import EventRegistrationSerializer
-from ..models.Event import Event
-from ..models.EventRegistration import EventRegistration
-from ..validations.event import RegisterEventValidator
+from ...serializers import EventRegistrationSerializer
+from ...models.Event import Event
+from ...models.EventRegistration import EventRegistration
+from ...validations.eventValidation import RegisterEventValidator
 from event_management.responseMessage import *
 
 
@@ -26,16 +26,16 @@ class RegisterEventView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            event_id = validator.validated_data.get("eventId")
-            try:
-                event = Event.objects.get(id=event_id, isDeleted=False)
-            except Event.DoesNotExist:
+            event_id = request.data.get("eventId")
+
+            event = Event.objects.get(id=event_id, isDeleted=False)
+            if not event:
                 return Response(
                     {
-                        "status": status.HTTP_404_NOT_FOUND,
+                        "status": status.HTTP_400_BAD_REQUEST,
                         "message": EVENT_NOT_FOUND,
                     },
-                    status=status.HTTP_404_NOT_FOUND,
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
             if EventRegistration.objects.filter(
@@ -57,7 +57,7 @@ class RegisterEventView(APIView):
                 return Response(
                     {
                         "status": status.HTTP_400_BAD_REQUEST,
-                        "message": "Event capacity reached",
+                        "message": EVENT_CAPACITY_REACHED,
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
@@ -78,15 +78,6 @@ class RegisterEventView(APIView):
                         "data": serializer.data,
                     },
                     status=status.HTTP_201_CREATED,
-                )
-            else:
-                return Response(
-                    {
-                        "status": status.HTTP_400_BAD_REQUEST,
-                        "message": VALIDATION_FAILED,
-                        "errors": serializer.errors,
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
         except Exception as error:
