@@ -26,14 +26,15 @@ class CreateEventView(APIView):
             data = {
                 "title": request.data.get("title"),
                 "description": request.data.get("description"),
-                "datetime": validator.validated_data.get("datetime"),
+                "datetime": request.data.get("datetime"),
                 "venue": request.data.get("venue"),
                 "capacity": request.data.get("capacity"),
                 "imageId": request.data.get("imageId"),
+                "userId": str(request.user.id),
                 "createdBy": str(request.user.id),
             }
 
-            validator = CreateEventValidator(data)
+            validator = CreateEventValidator(data=data)
             if not validator.is_valid():
                 return Response(
                     {
@@ -55,6 +56,14 @@ class CreateEventView(APIView):
                     },
                     status=status.HTTP_201_CREATED,
                 )
+            return Response(
+                {
+                    "status": status.HTTP_400_BAD_REQUEST,
+                    "message": VALIDATION_FAILED,
+                    "errors": serializer.errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         except Exception as error:
             print(f"Unexpected error: {error}")
@@ -76,32 +85,33 @@ class UserEventListView(APIView):
             # Raw SQL query joining Event and Media to get mediaUrl
             query = """
                 SELECT 
-                    e.id,
-                    e.title,
-                    e.description,
-                    e.datetime,
-                    e.venue,
-                    e.capacity,
-                    e.imageId,
-                    m.mediaUrl,
-                    e.createdAt
-                FROM event_event e
-                LEFT JOIN media_media m ON e.imageId = m.id
-                WHERE e.createdBy = %s AND e.isDeleted = FALSE
-                ORDER BY e.createdAt DESC
+                    e."id" AS eventId,
+                    e."title" AS title,
+                    e."description" AS description,
+                    e."datetime" AS datetime,
+                    e."venue" AS venue,
+                    e."capacity" AS capacity,
+                    e."imageId" AS imageId,
+                    m."mediaUrl" AS mediaUrl,
+                    e."createdAt" AS createdAt
+                FROM event e
+                LEFT JOIN media m ON e."imageId" = m."id"
+                WHERE e."createdBy" = %s AND e."isDeleted" = FALSE
+                ORDER BY e."createdAt" DESC
             """
 
             with connection.cursor() as cursor:
-                cursor.execute(query, [user.id])
-                events = cursor.fetchall()
+                cursor.execute(query, [str(user.id)])
+                columns = [col[0] for col in cursor.description]  # <-- column names
+                events = [dict(zip(columns, row)) for row in cursor.fetchall()]
 
             countQuery = """
                     SELECT COUNT(*) 
-                    FROM event_event
-                    WHERE createdBy = %s AND isDeleted = FALSE
+                    FROM event
+                    WHERE "createdBy" = %s AND "isDeleted" = FALSE
                 """
             with connection.cursor() as cursor:
-                cursor.execute(countQuery, [user.id])
+                cursor.execute(countQuery, [str(user.id)])
                 count = cursor.fetchone()[0]
 
             return Response(
@@ -140,9 +150,9 @@ class UpdateEventView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            event_id = request.data["id"]
+            eventId = request.data["id"]
             event = Event.objects.get(
-                id=event_id, createdBy=str(user.id), isDeleted=False
+                id=eventId, createdBy=str(user.id), isDeleted=False
             )
 
             data = {}
@@ -164,11 +174,11 @@ class UpdateEventView(APIView):
             data["updatedBy"] = str(user.id)
             data["updatedAt"] = int(time.time() * 1000)
 
-            deleted_media_id = request.data["deletedMediaId"]
-            new_image_id = request.data["imageId"]
+            deletedMediaId = request.data.get("deletedMediaId")
+            newImageId = request.data.get("imageId")
 
             # Upload new media only when old media is deleted
-            if not deleted_media_id and new_image_id:
+            if not deletedMediaId and newImageId:
                 return Response(
                     {
                         "status": status.HTTP_400_BAD_REQUEST,
@@ -178,11 +188,11 @@ class UpdateEventView(APIView):
                 )
 
             # Delete old media
-            if deleted_media_id:
-                media = Media.objects.get(id=deleted_media_id, isDeleted=False)
+            if deletedMediaId:
+                media = Media.objects.get(id=deletedMediaId, isDeleted=False)
 
                 # Delete file + soft delete record
-                deleteMedia(media.mediaUrl, deleted_by=user.id)
+                deleteMedia(media.mediaUrl)
 
                 media.isDeleted = True
                 media.deletedAt = int(time.time() * 1000)
@@ -297,49 +307,49 @@ class EventListView(APIView):
 
             countClause = """
                     SELECT COUNT(*) 
-                    FROM event_event
+                    FROM event e
                 """
 
             # Base query
             selectClause = """
                 SELECT 
-                    e.id,
-                    e.title,
-                    e.description,
-                    e.datetime,
-                    e.venue,
-                    e.capacity,
-                    e.imageId,
-                    m.mediaUrl,
-                    e.createdAt,
+                    e."id",
+                    e."title",
+                    e."description",
+                    e."datetime",
+                    e."venue",
+                    e."capacity",
+                    e."imageId",
+                    m."mediaUrl",
+                    e."createdAt",
                     COALESCE(att.count, 0) AS attendee_count
-                FROM event_event e
+                FROM event e
                 LEFT JOIN (
-                    SELECT event_id, COUNT(*) AS count
-                    FROM registration_registration
-                    WHERE isDeleted = FALSE
-                    GROUP BY event_id
-                ) att ON e.id = att.event_id
-                LEFT JOIN media_media m ON e.imageId = m.id
+                    SELECT "eventId", COUNT(*) AS count
+                    FROM event_registration
+                    WHERE "isDeleted" = FALSE
+                    GROUP BY "eventId"
+                ) att ON e."id" = att."eventId"
+                LEFT JOIN media m ON e."imageId" = m."id"
             """
 
             # Dynamic WHERE conditions
-            whereClause = "WHERE e.isDeleted = FALSE"
+            whereClause = ' WHERE e."isDeleted" = FALSE'
             params = []
 
-            if filterType == EVENT_FILTER_TYPE["upcoming"]:
-                whereClause += "AND e.datetime >= %s"
+            if filterType == EVENT_FILTER_TYPE["Upcoming"]:
+                whereClause += ' AND e."datetime" >= %s'
                 params.append(current_time)
-            elif filterType == EVENT_FILTER_TYPE["past"]:
-                whereClause += "AND e.datetime < %s"
+            elif filterType == EVENT_FILTER_TYPE["Past"]:
+                whereClause += ' AND e."datetime" < %s'
                 params.append(current_time)
 
             if search:
-                whereClause += "e.title ILIKE %s"
+                whereClause += " AND e.title ILIKE %s"
                 params.append(f"%{search}%")
 
             # Ordering
-            orderByClause += " ORDER BY e.datetime DESC"
+            orderByClause = ' ORDER BY e."datetime" DESC'
 
             # Final query
             query = selectClause + whereClause + orderByClause
@@ -348,7 +358,8 @@ class EventListView(APIView):
             # Execute query
             with connection.cursor() as cursor:
                 cursor.execute(query, params)
-                events = cursor.fetchall()
+                columns = [col[0] for col in cursor.description]  # <-- column names
+                events = [dict(zip(columns, row)) for row in cursor.fetchall()]
 
             with connection.cursor() as cursor:
                 cursor.execute(countQuery, params)

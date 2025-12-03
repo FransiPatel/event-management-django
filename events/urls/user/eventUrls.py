@@ -8,8 +8,8 @@ from events.views.user.event import (
 )
 
 urlpatterns = [
-    path("list/", UserEventListView.as_view(), name="user-event-list"),
-    path("list/", EventListView.as_view(), name="user-event-list"),
+    path("user-list/", UserEventListView.as_view(), name="user-event-list"),
+    path("list/", EventListView.as_view(), name="event-list"),
     path("create-event/", CreateEventView.as_view(), name="user-create-event"),
     path("update-event/", UpdateEventView.as_view(), name="user-update-event"),
     path("delete-event/", DeleteEventView.as_view(), name="user-delete-event"),

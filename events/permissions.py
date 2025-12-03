@@ -11,5 +11,5 @@ class IsAdmin(BasePermission):
         return (
             request.user
             and request.user.is_authenticated
-            and request.user.profileType == USER_PROFILE_TYPE["admin"]
+            and request.user.profileType == USER_PROFILE_TYPE["Admin"]
         )

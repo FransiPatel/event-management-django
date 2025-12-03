@@ -61,3 +61,44 @@ class RegisterSocialValidator(serializers.Serializer):
 class LoginValidator(serializers.Serializer):
     email = serializers.EmailField(required=True)
     password = serializers.CharField(required=True)
+
+
+class CreateAdminValidator(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(required=True)
+    firstName = serializers.CharField(required=True)
+    lastName = serializers.CharField(required=True)
+    username = serializers.CharField(required=True)
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError(EMAIL_ALREADY_EXISTS)
+        return value
+
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError(USERNAME_ALREADY_EXISTS)
+        return value
+
+    def validate_password(self, value):
+        if len(value) < 8:
+            raise serializers.ValidationError(
+                "Password must be at least 8 characters long."
+            )
+        if not re.search(r"[A-Z]", value):
+            raise serializers.ValidationError(
+                "Password must contain at least one uppercase letter."
+            )
+        if not re.search(r"[a-z]", value):
+            raise serializers.ValidationError(
+                "Password must contain at least one lowercase letter."
+            )
+        if not re.search(r"[0-9]", value):
+            raise serializers.ValidationError(
+                "Password must contain at least one digit."
+            )
+        if not re.search(r"[!@#$%^&*]", value):
+            raise serializers.ValidationError(
+                "Password must contain at least one special character."
+            )
+        return value

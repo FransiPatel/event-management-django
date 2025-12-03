@@ -1,5 +1,11 @@
 from django.urls import path
-from .views import RegisterUser, LoginUser, ProfileUser, LogoutUser, RegisterUserSocial
+from users.views.user.authentication import (
+    RegisterUser,
+    LoginUser,
+    ProfileUser,
+    LogoutUser,
+    RegisterUserSocial,
+)
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [

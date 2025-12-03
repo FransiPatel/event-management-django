@@ -16,11 +16,11 @@ class UploadMediaView(APIView):
         try:
             user = request.user
             file = request.FILES.get("file")
-            upload_type = request.data.get("typeOfFile")
+            uploadType = request.data.get("typeOfFile")
             duration = int(request.data.get("duration", 0))
 
-            # Validate file with custom validator (same logic as Node.js)
-            FileUploadValidator.validate(upload_type, file)
+            # Validate file with custom validator
+            FileUploadValidator.validate(uploadType, file)
 
             # Upload file
             result = uploadMedia(user, file)
@@ -32,7 +32,7 @@ class UploadMediaView(APIView):
                         "message": MEDIA_UPLOAD_SUCCESS,
                         "data": {
                             **result.get("data"),
-                            "typeOfFile": upload_type,
+                            "typeOfFile": uploadType,
                             "duration": duration,
                         },
                     },

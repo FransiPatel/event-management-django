@@ -9,10 +9,17 @@ class EventRegistration(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     userId = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, related_name="registrations"
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="registrations",
+        db_column="userId",
     )
     eventId = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name="registrations"
+        Event,
+        on_delete=models.CASCADE,
+        related_name="registrations",
+        db_column="eventId",
     )
 
     # Unix timestamp fields

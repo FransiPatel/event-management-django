@@ -1,6 +1,6 @@
 USER_PROFILE_TYPE = {
-    "admin": "Admin",
-    "user": "User",
+    "Admin": "admin",
+    "User": "user",
 }
 
 PASSWORD_REGEX = r'^[A-Za-z\d!@#*\$%^&()_+\-=\[\]{};\':"\\|,.<>\/?]{8,15}$'

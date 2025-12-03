@@ -4,9 +4,7 @@ from event_management.responseMessage import *
 
 class CreateEventValidator(serializers.Serializer):
     title = serializers.CharField(required=True)
-    description = serializers.CharField(
-        required=False, allow_blank=True, allow_null=True
-    )
+    description = serializers.CharField(required=True)
     datetime = serializers.DateTimeField(required=True)
     venue = serializers.CharField(required=True)
     capacity = serializers.IntegerField(required=True)

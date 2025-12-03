@@ -37,7 +37,7 @@ class User(AbstractBaseUser):
     refreshToken = models.TextField(null=True, blank=True)
     socialId = models.CharField(max_length=255, null=True, blank=True)
     profileType = models.CharField(
-        max_length=255, null=True, blank=False, default=USER_PROFILE_TYPE["user"]
+        max_length=255, null=True, blank=False, default=USER_PROFILE_TYPE["User"]
     )
     isDeleted = models.BooleanField(default=False)
 
