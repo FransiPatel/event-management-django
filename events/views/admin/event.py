@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 import time
 from ...serializers import EventSerializer
+from ...models.EventRegistration import EventRegistration
 from ...models.Event import Event
 from ...validations.eventValidation import (
     CreateEventValidator,
@@ -318,6 +319,76 @@ class DeleteEventView(APIView):
                 {"status": status.HTTP_200_OK, "message": EVENT_DELETED},
                 status=status.HTTP_200_OK,
             )
+        except Exception as error:
+            print(f"Unexpected error: {error}")
+            return Response(
+                {
+                    "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    "message": WENTS_WRONG,
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+class AdminEventDetailsView(APIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def get(self, request, event_id):
+        try:
+            # Get event details
+            event = Event.objects.filter(id=event_id, isDeleted=False).first()
+
+            if not event:
+                return Response(
+                    {
+                        "status": status.HTTP_404_NOT_FOUND,
+                        "message": EVENT_NOT_FOUND,
+                    },
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            # Get registered users for this event
+            registrations = EventRegistration.objects.filter(
+                eventId=event, isDeleted=False
+            ).select_related("userId")
+
+            registered_users = []
+            for reg in registrations:
+                if reg.userId:
+                    registered_users.append(
+                        {
+                            "registration_id": str(reg.id),
+                            "user_id": str(reg.userId.id),
+                            "username": reg.userId.username,
+                            "email": reg.userId.email,
+                            "firstName": reg.userId.firstName,
+                            "lastName": reg.userId.lastName,
+                            "registered_at": reg.createdAt,
+                        }
+                    )
+
+            event_data = {
+                "id": str(event.id),
+                "title": event.title,
+                "description": event.description,
+                "datetime": event.datetime,
+                "venue": event.venue,
+                "capacity": event.capacity,
+                "imageId": str(event.imageId.id) if event.imageId else None,
+                "createdAt": event.createdAt,
+                "total_registrations": len(registered_users),
+                "registered_users": registered_users,
+            }
+
+            return Response(
+                {
+                    "status": status.HTTP_200_OK,
+                    "message": "Event details fetched successfully",
+                    "data": event_data,
+                },
+                status=status.HTTP_200_OK,
+            )
+
         except Exception as error:
             print(f"Unexpected error: {error}")
             return Response(

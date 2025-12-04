@@ -1,12 +1,21 @@
-from .event import CreateEventView, EventListView, UpdateEventView, DeleteEventView
-from .dashboard import AdminDashboardView, AdminEventListView, AdminEventDetailsView
+from .event import (
+    CreateEventView,
+    EventListView,
+    UpdateEventView,
+    DeleteEventView,
+    AdminEventDetailsView,
+)
+from .dashboard import (
+    AdminDashboardSummaryView,
+    AdminUpcomingEventsView,
+)
 
 __all__ = [
     "CreateEventView",
     "EventListView",
     "UpdateEventView",
     "DeleteEventView",
-    "AdminDashboardView",
-    "AdminEventListView",
     "AdminEventDetailsView",
+    "AdminDashboardSummaryView",
+    "AdminUpcomingEventsView",
 ]

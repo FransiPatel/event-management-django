@@ -10,4 +10,4 @@ def deleteMedia(media_url):
                 default_storage.delete(relative_path)
 
     except Exception as e:
-        print(f"Error deleting media: {e}")
+        return f"Error deleting media: {e}"

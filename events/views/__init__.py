@@ -3,9 +3,10 @@ from .admin import (
     CreateEventView,
     UpdateEventView,
     DeleteEventView,
-    AdminDashboardView,
-    AdminEventListView,
+    EventListView,
     AdminEventDetailsView,
+    AdminDashboardSummaryView,
+    AdminUpcomingEventsView,
 )
 
 # User views
@@ -16,9 +17,10 @@ __all__ = [
     "CreateEventView",
     "UpdateEventView",
     "DeleteEventView",
-    "AdminDashboardView",
-    "AdminEventListView",
+    "EventListView",
     "AdminEventDetailsView",
+    "AdminDashboardSummaryView",
+    "AdminUpcomingEventsView",
     # User views
     "RegisterEventView",
     "UploadMediaView",

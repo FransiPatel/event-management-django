@@ -4,6 +4,7 @@ from events.views.admin.event import (
     UpdateEventView,
     DeleteEventView,
     EventListView,
+    AdminEventDetailsView,
 )
 
 urlpatterns = [
@@ -11,4 +12,5 @@ urlpatterns = [
     path("create-event/", CreateEventView.as_view(), name="admin-create-event"),
     path("update-event/", UpdateEventView.as_view(), name="admin-update-event"),
     path("delete-event/", DeleteEventView.as_view(), name="admin-delete-event"),
+    path("event-details/", AdminEventDetailsView.as_view(), name="admin-event-details"),
 ]

@@ -1,6 +1,10 @@
 from django.urls import path
-from events.views.admin.dashboard import AdminDashboardView
+from events.views.admin.dashboard import (
+    AdminDashboardSummaryView,
+    AdminUpcomingEventsView,
+)
 
 urlpatterns = [
-    path("dashboard/", AdminDashboardView.as_view(), name="admin-dashboard"),
+    path("dashboard/summary/", AdminDashboardSummaryView.as_view()),
+    path("dashboard/upcoming-events/", AdminUpcomingEventsView.as_view()),
 ]
