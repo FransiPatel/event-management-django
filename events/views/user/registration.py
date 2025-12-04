@@ -7,6 +7,7 @@ from ...models.Event import Event
 from ...models.EventRegistration import EventRegistration
 from ...validations.eventValidation import RegisterEventValidator
 from event_management.responseMessage import *
+from ...helpers.sendMail import send_registration_confirmation
 
 
 class RegisterEventView(APIView):
@@ -71,6 +72,8 @@ class RegisterEventView(APIView):
             serializer = EventRegistrationSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
+
+                send_registration_confirmation(user, event)
                 return Response(
                     {
                         "status": status.HTTP_201_CREATED,

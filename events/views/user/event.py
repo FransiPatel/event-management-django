@@ -82,6 +82,10 @@ class UserEventListView(APIView):
     def get(self, request):
         try:
             user = request.user
+
+            # Pagination params
+            limit = int(request.GET.get("limit", 10))
+            skip = int(request.GET.get("skip", 0))
             # Raw SQL query joining Event and Media to get mediaUrl
             query = """
                 SELECT 
@@ -98,10 +102,11 @@ class UserEventListView(APIView):
                 LEFT JOIN media m ON e."imageId" = m."id"
                 WHERE e."createdBy" = %s AND e."isDeleted" = FALSE
                 ORDER BY e."createdAt" DESC
+                LIMIT %s OFFSET %s
             """
 
             with connection.cursor() as cursor:
-                cursor.execute(query, [str(user.id)])
+                cursor.execute(query, [str(user.id), limit, skip])
                 columns = [col[0] for col in cursor.description]  # <-- column names
                 events = [dict(zip(columns, row)) for row in cursor.fetchall()]
 

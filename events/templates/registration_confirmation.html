@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head> </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Event Registration Confirmed</h1>
+      </div>
+      <div class="content">
+        <p>Hello {{ user_name }},</p>
+        <p>
+          Thank you for registering for our event! Your registration is
+          confirmed.
+        </p>
+
+        <div class="event-details">
+          <h3>{{ event_title }}</h3>
+          <p><strong>Date & Time:</strong> {{ event_date }}</p>
+          <p><strong>Venue:</strong> {{ event_venue }}</p>
+          <p><strong>Description:</strong> {{ event_description }}</p>
+        </div>
+
+        <p>We look forward to seeing you at the event!</p>
+        <p>If you have any questions, please contact us.</p>
+      </div>
+      <div class="footer">
+        <p>&copy; 2025 Event Management. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>
