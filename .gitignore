@@ -2,3 +2,15 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Django migrations
+*/migrations/
+**/migrations/
+
+# Python cache
+*.pyc
+__pycache__/
+*/__pycache__/
+**/__pycache__/
+
+*/uploads/

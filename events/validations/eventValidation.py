@@ -4,9 +4,7 @@ from event_management.responseMessage import *
 
 class CreateEventValidator(serializers.Serializer):
     title = serializers.CharField(required=True)
-    description = serializers.CharField(
-        required=False, allow_blank=True, allow_null=True
-    )
+    description = serializers.CharField(required=True)
     datetime = serializers.DateTimeField(required=True)
     venue = serializers.CharField(required=True)
     capacity = serializers.IntegerField(required=True)
@@ -28,6 +26,9 @@ class UpdateEventValidator(serializers.Serializer):
     venue = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     capacity = serializers.IntegerField(required=False)
     imageId = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    deletedMediaId = serializers.CharField(
+        required=False, allow_null=True, allow_blank=False
+    )
 
     def validate_capacity(self, value):
         if value is not None and value <= 0:
@@ -37,3 +38,7 @@ class UpdateEventValidator(serializers.Serializer):
 
 class DeleteEventValidator(serializers.Serializer):
     id = serializers.CharField(required=True)
+
+
+class RegisterEventValidator(serializers.Serializer):
+    eventId = serializers.CharField(required=True)
